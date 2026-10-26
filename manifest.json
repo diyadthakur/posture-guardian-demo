@@ -1,7 +1,7 @@
 {
   "name": "Posture Guardian",
   "short_name": "Posture Guardian",
-  "description": "A privacy-conscious student prototype for posture awareness using an experimental facial-position proxy.",
+  "description": "A privacy-conscious student prototype for posture awareness using experimental face and shoulder landmarks.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
