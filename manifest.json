@@ -1,0 +1,15 @@
+{
+  "name": "Posture Guardian",
+  "short_name": "Posture Guardian",
+  "description": "A privacy-conscious student prototype for posture awareness using an experimental facial-position proxy.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f1f6f8",
+  "theme_color": "#16324f",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
