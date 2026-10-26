@@ -24,7 +24,7 @@ video,canvas{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;t
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}.metric{background:var(--pale);border:1px solid #e4eaee;border-radius:12px;padding:12px}.value{font-size:22px;font-weight:850;color:var(--navy);font-variant-numeric:tabular-nums}.label{font-size:11px;color:var(--muted);margin-top:3px}
 .field{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;font-size:13px}.field input{accent-color:var(--teal)}input[type=range]{width:130px}
 .prompt{display:none;background:var(--mint);border:1px solid #c8e5da;padding:13px;border-radius:12px;margin-top:12px}.prompt.show{display:block}.prompt strong{color:#216b4b}.tiny{font-size:11px;color:var(--muted);line-height:1.45}
-.log{max-height:145px;overflow:auto;padding-left:18px;font-size:12px;color:var(--muted)}.log li{margin:5px 0}
+.goal-option{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #dce6ea;border-radius:12px;font-size:13px;line-height:1.4;background:#f8fbfc}.goal-option input{margin-top:3px;accent-color:var(--teal)}.navbtn{white-space:nowrap;min-height:40px}.page-view[hidden],#mainApp[hidden]{display:none!important}.goal-option{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #dce6ea;border-radius:12px;font-size:13px;line-height:1.4;background:#f8fbfc}.goal-option input{margin-top:3px;accent-color:var(--teal)}.page-view[hidden],#mainApp[hidden]{display:none!important}.log{max-height:145px;overflow:auto;padding-left:18px;font-size:12px;color:var(--muted)}.log li{margin:5px 0}
 footer{text-align:center;padding:20px;color:#75838d;font-size:11px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.stage{aspect-ratio:4/3}}
 
@@ -40,6 +40,30 @@ footer{text-align:center;padding:20px;color:#75838d;font-size:11px}
 </head>
 <body>
 <header><div><div class="brand">⌁ Posture Guardian</div><div class="sub">Live face-landmark proof of concept · runs in your browser</div></div><span id="status" class="status"><span class="dot"></span><span id="statusText">Camera not started</span></span></header>
+<nav id="appNav" style="display:flex;gap:8px;padding:10px;background:#e8f4f1;overflow-x:auto;position:sticky;top:0;z-index:5">
+<button data-page="home">Home</button><button data-page="monitor" class="secondary">Monitor</button><button data-page="goals" class="secondary">My goals</button><button data-page="privacy" class="secondary">Privacy</button><button data-page="about" class="secondary">About</button></nav>
+<section id="onboarding" class="wrap"><div class="panel">
+<div style="font-size:12px;font-weight:800;color:#147d80">WELCOME TO POSTURE GUARDIAN</div><h1 style="margin-top:8px">Build awareness. Take comfortable breaks.</h1>
+<p>This student prototype explores whether camera-based signals can help you notice changes in head and shoulder position during device use.</p>
+<h2>Before you begin</h2><ul style="font-size:13px;line-height:1.6;color:#52616d;padding-left:20px">
+<li>Camera access is requested only when you start a session.</li><li>Video is processed in this browser session; this prototype does not intentionally record or upload it.</li><li>Signals are experimental and can be wrong. This is not a medical device and does not diagnose or prevent injury.</li><li>Keep the app open in the foreground. iPhone web apps cannot reliably keep the camera running in the background.</li></ul>
+<label style="display:flex;gap:10px;font-size:13px;margin:14px 0"><input id="termsAccept" type="checkbox"> I understand the limitations and agree to use it voluntarily.</label>
+<h2>What would you like help with?</h2><p>Select any goals; choices remain in this page session.</p>
+<div id="goalChoices" style="display:grid;gap:8px">
+<label class="goal-option"><input type="checkbox" value="awareness"> Better posture awareness during long device sessions</label>
+<label class="goal-option"><input type="checkbox" value="phone"> Posture awareness while using my phone</label>
+<label class="goal-option"><input type="checkbox" value="breaks"> Remembering movement breaks</label>
+<label class="goal-option"><input type="checkbox" value="learn"> Learning how posture signals work</label></div>
+<h2 style="margin-top:18px">Permissions checklist</h2><p>Camera access is requested by iOS when you press Start. Notifications are not currently implemented; prompts appear inside the app.</p>
+<div class="actions"><button id="permissionInfoBtn" class="secondary">Permission guidance</button><button id="beginBtn">Agree & continue</button></div>
+<div id="setupHelp" class="prompt"><strong>Before monitoring</strong><p>Keep the app in the foreground, allow camera access when prompted, and use an internet connection to load the AI model.</p></div>
+</div></section>
+<div id="mainApp" hidden>
+<div id="page-home" class="page-view wrap"><div class="panel"><h1>Welcome to Posture Guardian</h1><p id="welcomeGoal">Your posture-awareness session is ready when you are.</p><div class="actions"><button id="homeStartBtn">Start a session</button><button data-goto="goals" class="secondary">Edit goals</button><button data-goto="privacy" class="secondary">Privacy & permissions</button></div><div class="notice">Keep the app open and the camera in view during monitoring.</div></div></div>
+<div id="page-goals" class="page-view wrap" hidden><div class="panel"><h1>My goals</h1><p>Update your goals for this session.</p><div id="goalChoicesEdit" style="display:grid;gap:8px"><label class="goal-option"><input type="checkbox" value="awareness"> Better posture awareness during long device sessions</label><label class="goal-option"><input type="checkbox" value="phone"> Posture awareness while using my phone</label><label class="goal-option"><input type="checkbox" value="breaks"> Remembering movement breaks</label><label class="goal-option"><input type="checkbox" value="learn"> Learning how posture signals work</label></div><div class="actions"><button id="saveGoalsBtn">Save goals</button></div><p id="goalSaved" class="tiny"></p></div></div>
+<div id="page-privacy" class="page-view wrap" hidden><div class="panel"><h1>Privacy & permissions</h1><h2>Camera</h2><p>Camera access begins only after you press Start. Video is processed in the current browser session and is not intentionally saved or uploaded by this prototype.</p><h2>Notifications</h2><p>In-app prompts are supported while the session is active. System notifications are not implemented in this version.</p><h2>Background use</h2><p>Keep this app open in the foreground. iOS may suspend the page when you switch apps or lock the screen.</p><div class="actions"><button data-goto="home" class="secondary">Back home</button><button data-goto="monitor">Go to monitor</button></div></div></div>
+<div id="page-about" class="page-view wrap" hidden><div class="panel"><h1>About</h1><p>Posture Guardian is a student proof of concept for posture awareness during device use.</p><p>Face and shoulder signals are experimental proxies, not validated clinical measurements. This is not a medical device.</p><div class="actions"><button data-goto="home" class="secondary">Back home</button></div></div></div>
+<div id="page-monitor" class="page-view">
 <div class="wrap">
 <div class="notice"><b>Research prototype, not a medical device.</b> Camera is accessed only after you press Start and grant browser permission. This page does not record or upload video. The live values are face-landmark measurements and an experimental head-position proxy—not a direct measurement of cervical-spine angle. A modern browser and internet connection are required to load the AI library/model.</div>
 <div class="grid">
@@ -53,7 +77,9 @@ footer{text-align:center;padding:20px;color:#75838d;font-size:11px}
 <h2>Live readings</h2><div class="tiny">Readings appear only when a face is detected. The “position proxy” is an experimental geometric signal, not a clinical angle.</div>
 <div class="metrics">
 <div class="metric"><div class="value" id="landmarkCount">—</div><div class="label">Landmarks detected</div></div>
-<div class="metric"><div class="value" id="faceState">—</div><div class="label">Face visibility</div></div>
+<div class="metric"><div class="value" id="faceState">—</div><div class="label">Face visibility</div></div><div class="metric"><div class="value" id="shoulderState">—</div><div class="label">Shoulder landmarks</div></div><div class="metric"><div class="value" id="shoulderProxy">—</div><div class="label">Shoulder level signal</div></div>
+<div class="metric"><div class="value" id="shoulderState">—</div><div class="label">Shoulder landmarks</div></div>
+<div class="metric"><div class="value" id="shoulderProxy">—</div><div class="label">Shoulder alignment proxy</div></div>
 <div class="metric"><div class="value" id="proxyValue">—</div><div class="label">Head-position proxy</div></div>
 <div class="metric"><div class="value" id="deltaValue">—</div><div class="label">Change from baseline</div></div>
 </div>
@@ -64,16 +90,37 @@ footer{text-align:center;padding:20px;color:#75838d;font-size:11px}
 <h2 style="margin-top:20px">Session events</h2><ul class="log" id="log"><li>Waiting for session.</li></ul>
 <p class="tiny"><b>Limitations:</b> camera angle, lighting, occlusion, head turns and distance can affect readings. This prototype does not establish shoulder rounding or exact neck flexion. Stop if you feel uncomfortable.</p>
 </aside></div>
-</div><footer>Posture Guardian · Student proof of concept · No diagnosis or treatment advice</footer>
+</div></div></div>
+</div></div></div><footer>Posture Guardian · Student proof of concept · No diagnosis or treatment advice</footer>
 <script type="module">
-import { FaceLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+import { FaceLandmarker, PoseLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
 const $=id=>document.getElementById(id);
 const video=$("video"), canvas=$("overlay"), ctx=canvas.getContext("2d");
-let landmarker=null, stream=null, running=false, raf=0, lastVideoTime=-1, baseline=null, badSince=null, lastAlert=0, snoozeUntil=0, startAt=0, breakTimer=null, lastBreak=0, eventCount=0;
+let landmarker=null, poseLandmarker=null, stream=null, running=false, raf=0, lastVideoTime=-1, baseline=null, badSince=null, lastAlert=0, snoozeUntil=0, startAt=0, breakTimer=null, lastBreak=0, eventCount=0;
 const log=(msg)=>{const li=document.createElement("li");li.textContent=new Date().toLocaleTimeString()+": "+msg;$("log").prepend(li);while($("log").children.length>12)$("log").lastChild.remove()};
 function status(text,kind=""){ $("statusText").textContent=text;$("status").className="status "+kind;}
 function setMetric(id,val){$(id).textContent=val;}
 function clearPrompt(){$("prompt").classList.remove("show");}
+const pages=["home","monitor","goals","privacy","about"];
+function showPage(page){pages.forEach(p=>{const el=$("page-"+p);if(el)el.hidden=p!==page});document.querySelectorAll(".navbtn").forEach(b=>{const active=b.dataset.page===page;b.classList.toggle("secondary",!active)});window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.goto)));
+$("permissionInfoBtn").onclick=()=>{$("setupHelp").classList.toggle("show")};
+function chosenGoals(containerId){return [...$(containerId).querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value)}
+function syncGoals(sourceId,targetId){const vals=chosenGoals(sourceId);$(targetId).querySelectorAll('input[type="checkbox"]').forEach(x=>x.checked=vals.includes(x.value));return vals}
+$("beginBtn").onclick=()=>{if(!$("termsAccept").checked){alert("Please confirm that you understand the prototype limitations before continuing.");return}const goals=chosenGoals("goalChoices");syncGoals("goalChoices","goalChoicesEdit");$("onboarding").hidden=true;$("mainApp").hidden=false;showPage("home");$("welcomeGoal").textContent=goals.length?"Your selected goals: "+goals.map(g=>({awareness:"posture awareness",phone:"phone-use reminders",breaks:"movement breaks",learn:"learning posture signals"}[g])).join(", ")+".":"Your posture-awareness session is ready when you are.";};
+$("homeStartBtn").onclick=()=>{showPage("monitor");$("startBtn").scrollIntoView({behavior:"smooth",block:"center"})};
+$("saveGoalsBtn").onclick=()=>{const vals=syncGoals("goalChoicesEdit","goalChoices");$("goalSaved").textContent="Saved for this page session: "+(vals.length?vals.join(", "):"no goals selected")+". Choices are not sent to a server.";};
+const pageNames=["home","monitor","goals","privacy","about"];
+function showPage(page){pageNames.forEach(p=>{const el=$("page-"+p);if(el)el.hidden=p!==page});document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("secondary",b.dataset.page!==page));window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+document.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>showPage(b.dataset.goto));
+$("permissionInfoBtn").onclick=()=>{$("setupHelp").classList.toggle("show")};
+function goals(id){return [...$(id).querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value)}
+function syncGoalChecks(a,b){const vals=goals(a);$(b).querySelectorAll('input[type="checkbox"]').forEach(x=>x.checked=vals.includes(x.value));return vals}
+$("beginBtn").onclick=()=>{if(!$("termsAccept").checked){alert("Please confirm that you understand the prototype limitations.");return}const g=goals("goalChoices");syncGoalChecks("goalChoices","goalChoicesEdit");$("onboarding").hidden=true;$("mainApp").hidden=false;showPage("home");$("welcomeGoal").textContent=g.length?"Your goals: "+g.join(", ")+".":"Your posture-awareness session is ready when you are."};
+$("homeStartBtn").onclick=()=>{showPage("monitor");$("startBtn").scrollIntoView({behavior:"smooth",block:"center"})};
+$("saveGoalsBtn").onclick=()=>{const g=syncGoalChecks("goalChoicesEdit","goalChoices");$("goalSaved").textContent="Saved for this page session: "+(g.join(", ")||"no goals selected")};
 $("threshold").addEventListener("input",()=>{$("thresholdLabel").textContent=Number($("threshold").value).toFixed(2)});
 $("dismissBtn").onclick=()=>{clearPrompt();lastAlert=performance.now();log("Prompt dismissed.")};
 $("snoozeBtn").onclick=()=>{clearPrompt();snoozeUntil=performance.now()+60000;log("Posture prompts snoozed for 60 seconds.")};
@@ -87,6 +134,11 @@ async function start(){
    status("Loading AI model…");
    const vision=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
    landmarker=await FaceLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numFaces:1,outputFaceBlendshapes:false,outputFacialTransformationMatrixes:true});
+   try{
+     poseLandmarker=await PoseLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},runningMode:"VIDEO",numPoses:1});
+     log("Shoulder landmark model loaded.");
+   }catch(poseError){console.warn("Pose model unavailable",poseError);poseLandmarker=null;log("Shoulder model unavailable on this device; face tracking can still run.");}
+   try{poseLandmarker=await PoseLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},runningMode:"VIDEO",numPoses:1});log("Shoulder landmark model loaded.");}catch(pe){console.warn(pe);poseLandmarker=null;log("Shoulder model unavailable; face tracking can continue.");}
    status("Requesting camera…");
    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:480}},audio:false});
    video.srcObject=stream;await video.play();running=true;startAt=Date.now();lastBreak=Date.now();
@@ -101,13 +153,34 @@ function loop(){
    lastVideoTime=video.currentTime;
    const now=performance.now();
    try{
-    const result=landmarker.detectForVideo(video,now);
+    const result=landmarker.detectForVideo(video,now);\n    let poseResult=null;if(poseLandmarker){try{poseResult=poseLandmarker.detectForVideo(video,now)}catch(pe){console.warn(pe)}}
+    let shoulderResult=null;
+    if(poseLandmarker){try{shoulderResult=poseLandmarker.detectForVideo(video,now)}catch(poseFrameError){console.warn(poseFrameError)}}
     canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.clearRect(0,0,canvas.width,canvas.height);
     const faces=result.faceLandmarks||[];
     if(faces.length){
       const lm=faces[0];const drawing=new DrawingUtils(ctx);
       drawing.drawConnectors(lm,FaceLandmarker.FACE_LANDMARKS_TESSELATION,{color:"#73e0cf55",lineWidth:0.55});
       drawing.drawLandmarks(lm,{color:"#65e4cf",lineWidth:1,radius:1.1});
+      let shoulderSignal="—";
+      const pose=shoulderResult?.landmarks?.[0];
+      if(pose && pose[11] && pose[12] && pose[11].visibility>0.35 && pose[12].visibility>0.35){
+        const ls=pose[11],rs=pose[12];
+        const shoulderWidth=Math.hypot(rs.x-ls.x,rs.y-ls.y)||0.0001;
+        shoulderSignal=((ls.y+rs.y)/2).toFixed(3)+" y";
+        setMetric("shoulderState","Detected");
+        setMetric("shoulderProxy",Math.abs(ls.y-rs.y)/shoulderWidth<0.08?"Level-ish":"Asymmetric");
+        // Draw shoulder landmarks on overlay. These are model estimates, not validated posture scores.
+        ctx.fillStyle="#ffd166";
+        [ls,rs].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x*canvas.width,pt.y*canvas.height,7,0,Math.PI*2);ctx.fill()});
+      }else{setMetric("shoulderState","Not visible");setMetric("shoulderProxy","—")}
+      const pose=poseResult?.landmarks?.[0];
+      if(pose && pose[11] && pose[12] && pose[11].visibility>0.35 && pose[12].visibility>0.35){
+        const ls=pose[11],rs=pose[12], width=Math.hypot(rs.x-ls.x,rs.y-ls.y)||0.0001;
+        setMetric("shoulderState","Detected");
+        $("shoulderState").title="Estimated left/right shoulder landmarks; not a validated posture score";
+        ctx.fillStyle="#ffd166";[ls,rs].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x*canvas.width,pt.y*canvas.height,7,0,Math.PI*2);ctx.fill()});
+      }else{setMetric("shoulderState","Not visible");setMetric("shoulderProxy","—")}
       const left=lm[33],right=lm[263],nose=lm[1],chin=lm[152];
       const eyeSpan=Math.hypot(right.x-left.x,right.y-left.y)||0.0001;
       // Geometry-based proxy: nose position relative to eye line, normalized by eye span.
@@ -132,7 +205,7 @@ function loop(){
           if(badSince===null)badSince=now;
           const duration=Number($("duration").value)*1000;
           if(now-badSince>duration && now-lastAlert>15000 && now>snoozeUntil){
-            $("promptText").textContent=delta>0?"Your head-position signal has shifted from your baseline. Try gently resetting your head and shoulders if comfortable.":"Your head-position signal has shifted from your baseline. Check that you're comfortable and relaxed.";
+            $("promptText").textContent=delta>0?"Your head-position signal has shifted from your baseline. Try gently resetting your head and sitting position if comfortable.":"Your head-position signal has shifted from your baseline. Check that you're comfortable and relaxed.";
             $("prompt").classList.add("show");lastAlert=now;log("Sustained position-proxy change triggered a prompt (not a diagnosis).");
           }
         }else{badSince=null;}
@@ -152,10 +225,10 @@ function loop(){
 function stop(){
  running=false;cancelAnimationFrame(raf);
  if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;
- if(landmarker){landmarker.close();landmarker=null}
+ if(landmarker){landmarker.close();landmarker=null}if(poseLandmarker){poseLandmarker.close();poseLandmarker=null} if(poseLandmarker){poseLandmarker.close();poseLandmarker=null}
  ctx.clearRect(0,0,canvas.width,canvas.height);$("stageMsg").style.display="block";$("stageMsg").innerHTML="<b>Camera is off</b>Start the session to load the AI model and request camera access.";
  $("startBtn").disabled=false;$("calBtn").disabled=true;$("stopBtn").disabled=true;$("calBtn").textContent="Calibrate baseline";baseline=null;badSince=null;clearPrompt();
- ["landmarkCount","faceState","proxyValue","deltaValue"].forEach(id=>setMetric(id,"—"));status("Camera stopped");log("Session stopped. Camera tracks ended.");
+ ["landmarkCount","faceState","shoulderState","shoulderProxy","proxyValue","deltaValue"].forEach(id=>setMetric(id,"—"));status("Camera stopped");log("Session stopped. Camera tracks ended.");
 }
 window.addEventListener("beforeunload",()=>{if(stream)stream.getTracks().forEach(t=>t.stop())});
 </script></body></html>
